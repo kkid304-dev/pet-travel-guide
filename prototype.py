@@ -29,10 +29,11 @@ params = {
     "MobileOS": "ETC",
     "MobileApp": "PetTest",
     "_type": "json",
-    "numOfRows": 100,
-    "pageNo": 3,
-    "arrange": "C",
+    "numOfRows": 10,
+    "pageNo": 1,
+    "arrange": "O",
     "lDongRegnCd": "11",   # 서울
+    "contentTypeId": "39",  
 }
 
 response = requests.get(url, params=params)
@@ -45,8 +46,14 @@ print("=== 서울 반려동물 동반 가능 장소 ===")
 
 detail_url = "http://apis.data.go.kr/B551011/KorPetTourService2/detailPetTour2"
 
+category = {
+    "12": "관광지", "14": "문화시설", "15": "축제공연",
+    "25": "여행코스", "28": "레포츠", "32": "숙박",
+    "38": "쇼핑", "39": "음식점",
+}
+
 for place in items:
-    print(place["title"], "|", place["addr1"])
+    print("[" + category.get(place["contenttypeid"], "기타") + "]", place["title"], "|", place["addr1"])
 
     detail_params = {
         "serviceKey": KEY,
@@ -65,4 +72,4 @@ for place in items:
 
     print("  └", judge(condition, pet_weight))
     print()
-    
+print("전체:", data["response"]["body"]["totalCount"], "곳")
