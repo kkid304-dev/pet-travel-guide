@@ -1,24 +1,27 @@
 import requests
+import re
 from config import KEY
-def judge(condition_text, pet_size):
-    # 정보가 없는 경우
+def judge(condition_text, pet_weight):
     if condition_text == "":
         return "⚠️ 정보 미확인 (방문 전 문의 권장)"
 
-    # 명확히 가능한 경우
+    # 무게 제한 찾기: "10kg 이하" 같은 패턴
+    match = re.search(r"(\d+)\s*kg", condition_text)
+    if match:
+        limit = float(match.group(1))
+        if pet_weight <= limit:
+            return "✅ 동반 가능 (제한: " + condition_text + ")"
+        else:
+            return "❌ 동반 불가 (제한: " + condition_text + ")"
+
     if "전 견종" in condition_text or "전구역" in condition_text:
         return "✅ 동반 가능"
 
-    # 크기 제한이 있는 경우: 입력한 크기가 조건에 언급되면 가능
-    if pet_size in condition_text:
-        return "✅ 동반 가능 (" + condition_text + ")"
-
-    # 그 외에는 조건부로 안내
     return "⚠️ 조건 확인 필요: " + condition_text
 
 
-pet_size = input("반려동물 크기를 입력하세요 (소형/중형/대형): ")
-print(pet_size, "기준으로 검색합니다\n")
+pet_weight = float(input("반려동물 무게를 입력하세요 (kg, 숫자만): "))
+print(pet_weight, "kg 기준으로 검색합니다\n")
 
 url = "http://apis.data.go.kr/B551011/KorPetTourService2/areaBasedList2"
 params = {
@@ -26,8 +29,8 @@ params = {
     "MobileOS": "ETC",
     "MobileApp": "PetTest",
     "_type": "json",
-    "numOfRows": 18,
-    "pageNo": 1,
+    "numOfRows": 100,
+    "pageNo": 3,
     "arrange": "C",
     "lDongRegnCd": "11",   # 서울
 }
@@ -60,5 +63,6 @@ for place in items:
     if condition == "":
         condition = detail_item["acmpyTypeCd"]   # 동반 구분으로 대체
 
-    print("  └", judge(condition, pet_size))
+    print("  └", judge(condition, pet_weight))
     print()
+    
