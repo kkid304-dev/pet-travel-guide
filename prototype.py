@@ -69,7 +69,7 @@ for place in items:
     condition = detail_item["acmpyPsblCpam"]
     if condition == "":
         condition = detail_item["acmpyTypeCd"]   # 동반 구분으로 대체
-
+    
     print("  └", judge(condition, pet_weight))
     print()
 print("전체:", data["response"]["body"]["totalCount"], "곳")
