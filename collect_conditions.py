@@ -11,7 +11,7 @@ plan = {
     "음식점": ("39", 30),
     "쇼핑": ("38", 50),
 }
-
+open("conditions.txt", "w", encoding="utf-8").close()
 
 
 for name, (code, limit) in plan.items():
@@ -26,10 +26,11 @@ for name, (code, limit) in plan.items():
     
     
     response = requests.get(list_url, params=params)
-    items = response.json()["response"]["body"]["items"]["item"]
-    if items == "":
+    items_box = response.json()["response"]["body"]["items"]       # ← 상자까지만 받고
+    if items_box == "":                                            # ← 먼저 검사
         print(name, "결과 없음, 건너뜀")
         continue
+    items = items_box["item"]                                      # ← 안전 확인 후 열기
     for place in items:
         content_ids.append(place["contentid"])
     print(name, "목록 수집 완료:", len(content_ids), "곳")
@@ -64,11 +65,13 @@ for name, (code, limit) in plan.items():
 
         if i % 50 == 0:
             print(i, "/", len(content_ids), "처리 중...")
-        time.sleep(0.1)
+       
 
     print("\n=== 조건 문장 순위 ===")
 
-    with open("conditions.txt", "w", encoding="utf-8") as f:
+   
+    with open("conditions.txt", "a", encoding="utf-8") as f:
+        f.write(f"\n=== {name} ===\n")
         for text, count in sorted(counts.items(), key=lambda x: -x[1]):
             line = str(count) + "곳 | " + text
             print(line)
