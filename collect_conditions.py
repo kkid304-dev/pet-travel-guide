@@ -1,6 +1,6 @@
-import requests
 import time
 from config import KEY
+from api_helpers import api_get, is_quota_error
 
 list_url = "http://apis.data.go.kr/B551011/KorPetTourService2/areaBasedList2"
 detail_url = "http://apis.data.go.kr/B551011/KorPetTourService2/detailPetTour2"
@@ -13,8 +13,11 @@ plan = {
 }
 open("conditions.txt", "w", encoding="utf-8").close()
 
+quota_hit = False
 
 for name, (code, limit) in plan.items():
+    if quota_hit:
+        break
     print(f"=== {name} 수집 시작 ===")
     content_ids = []
     params = {
@@ -23,14 +26,19 @@ for name, (code, limit) in plan.items():
         "arrange": "O", "lDongRegnCd": "11",
         "contentTypeId": code,
     }
-    
-    
-    response = requests.get(list_url, params=params)
-    items_box = response.json()["response"]["body"]["items"]       # ← 상자까지만 받고
-    if items_box == "":                                            # ← 먼저 검사
+
+    data, err = api_get(list_url, params)
+    if err:
+        print(name, "목록 조회 실패:", err)
+        if is_quota_error(err):
+            quota_hit = True
+            print("!! API 일일 한도로 보임. 중단합니다.")
+        continue
+    items_box = data["response"]["body"]["items"]
+    if items_box == "":
         print(name, "결과 없음, 건너뜀")
         continue
-    items = items_box["item"]                                      # ← 안전 확인 후 열기
+    items = items_box["item"]
     for place in items:
         content_ids.append(place["contentid"])
     print(name, "목록 수집 완료:", len(content_ids), "곳")
@@ -38,19 +46,22 @@ for name, (code, limit) in plan.items():
     counts = {}
 
     for i, cid in enumerate(content_ids):
+        if quota_hit:
+            break
         detail_params = {
             "serviceKey": KEY, "MobileOS": "ETC", "MobileApp": "PetTest",
             "_type": "json", "contentId": cid,
         }
 
         time.sleep(0.2)
-        r = requests.get(detail_url, params=detail_params)
-
-        try:
-            items_box = r.json()["response"]["body"]["items"]
-        except ValueError:
-            print(cid, "응답 이상:", r.text[:200])
+        data, err = api_get(detail_url, detail_params)
+        if err:
+            print(cid, "응답 이상:", err)
+            if is_quota_error(err):
+                quota_hit = True
+                print("!! API 일일 한도로 보임. 중단합니다.")
             continue
+        items_box = data["response"]["body"]["items"]
 
         if items_box == "":
             text = "(정보 없음)"
