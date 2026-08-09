@@ -1,8 +1,8 @@
 import sys
-import requests
 import time
 import re
 from config import KEY
+from api_helpers import api_get, is_quota_error
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -58,8 +58,11 @@ breed_hits = {b: 0 for b in BREED_KEYWORDS}
 field_filled = {"acmpyPsblCpam": 0, "acmpyNeedMtr": 0, "etcAcmpyInfo": 0}
 total_places = 0
 api_call_count = 0
+quota_hit = False
 
 for name, (code, limit) in plan.items():
+    if quota_hit:
+        break
     print(f"=== {name} 수집 시작 ===")
     params = {
         "serviceKey": KEY, "MobileOS": "ETC", "MobileApp": "PetTest",
@@ -67,15 +70,16 @@ for name, (code, limit) in plan.items():
         "arrange": "O", "lDongRegnCd": "11",
         "contentTypeId": code,
     }
-    response = requests.get(list_url, params=params)
+    data, err = api_get(list_url, params)
     api_call_count += 1
-
-    try:
-        items_box = response.json()["response"]["body"]["items"]
-    except ValueError:
-        print(name, "목록 응답 이상:", response.text[:200])
+    if err:
+        print(name, "목록 응답 이상:", err)
+        if is_quota_error(err):
+            quota_hit = True
+            print("!! API 일일 한도로 보임. 중단합니다.")
         continue
 
+    items_box = data["response"]["body"]["items"]
     if items_box == "":
         print(name, "결과 없음, 건너뜀")
         continue
@@ -84,6 +88,8 @@ for name, (code, limit) in plan.items():
     print(name, "목록 수집 완료:", len(items), "곳")
 
     for i, place in enumerate(items):
+        if quota_hit:
+            break
         cid = place["contentid"]
         title = place["title"]
 
@@ -92,14 +98,15 @@ for name, (code, limit) in plan.items():
             "_type": "json", "contentId": cid,
         }
         time.sleep(0.2)
-        r = requests.get(detail_url, params=detail_params)
+        data, err = api_get(detail_url, detail_params)
         api_call_count += 1
-
-        try:
-            items_box = r.json()["response"]["body"]["items"]
-        except ValueError:
-            print(cid, "상세 응답 이상:", r.text[:200])
+        if err:
+            print(cid, "상세 응답 이상:", err)
+            if is_quota_error(err):
+                quota_hit = True
+                print("!! API 일일 한도로 보임. 중단합니다.")
             continue
+        items_box = data["response"]["body"]["items"]
 
         total_places += 1
 
@@ -137,7 +144,10 @@ print("\n=== 스캔 완료: 결과 파일 저장 중 ===")
 
 with open("condition_scan.txt", "w", encoding="utf-8") as f:
     f.write("=== 조건 텍스트 대량 스캔 결과 ===\n")
-    f.write(f"총 조사 장소: {total_places}곳 (API 호출 {api_call_count}건)\n\n")
+    f.write(f"총 조사 장소: {total_places}곳 (API 호출 {api_call_count}건)\n")
+    if quota_hit:
+        f.write("** API 일일 한도로 중단됨. 일부 카테고리가 누락됐을 수 있음 **\n")
+    f.write("\n")
 
     f.write("--- 필드별 값 존재 비율 ---\n")
     for field, count in field_filled.items():
