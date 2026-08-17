@@ -1,5 +1,5 @@
 import sys
-from prototype import judge
+from judge import judge
 
 sys.stdout.reconfigure(encoding="utf-8")
 
