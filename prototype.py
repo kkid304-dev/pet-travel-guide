@@ -59,13 +59,18 @@ def _judge_core(text, pet_weight, is_dangerous_breed):
 
     # 1. 안내견/보조견만 언급 — 이 앱 사용자는 거의 항상 일반 반려견 보호자이므로
     # "확인 필요"로 유보하지 않고 확정 판정한다.
+    # 알려진 한계: "대형견 제외 15kg 미만 입장 가능... 안내견도 입장 가능"처럼 안내견이
+    # 배타 조건이 아니라 추가 허용 조항으로만 붙는 복합 문장에서는 과잉확신 오판 위험이
+    # 있음(실 사례: 메이즈랜드). 안내견 언급 자체가 드물어 v3.1로 보류.
     if "안내견" in text or "보조견" in text:
         return "❌ 일반 반려견 불가 (안내견/보조견만 가능)"
 
-    # 2. "불가"만 있고 "가능"이 없으면 그냥 전면 불가
-    if "불가" in text and "가능" not in text:
-        return "❌ 동반 불가"
-
+    # 2~4. 특수 카테고리(품종 특성 / 대형견 제외 / 맹견)는 반드시 5번(불가&가능없음)
+    # 같은 일반 규칙보다 먼저 봐야 한다. "맹견 동반 불가"처럼 특정 대상에만 한정된
+    # "불가"가 있는데 일반 규칙이 먼저 걸리면, 실제로는 맹견만 배제하는 관대한
+    # 정책을 전체 배제로 오판하게 된다 (전국 스캔에서 실제로 발견: 태화강 국가정원
+    # "맹견 동반 불가"가 일반견까지 ❌로 처리되던 문제, 통인 1939 "털날림 많은 종은
+    # 불가"가 전용 메시지 대신 일반 ❌로 처리되던 문제).
     if "털날림" in text:
         return "⚠️ 품종 특성 확인 필요: " + text
 
@@ -75,9 +80,6 @@ def _judge_core(text, pet_weight, is_dangerous_breed):
         if pet_size == "대형":
             return "❌ 동반 불가 (대형견 제외)"
 
-    # 3. 맹견 — 무게 조건보다 먼저 봐야 한다. "맹견 제외 15kg 이하 동반 가능"처럼
-    # 맹견 조건과 무게 조건이 같이 오는 문장에서 무게만 보고 먼저 확정해버리면
-    # "맹견 제외"라는 핵심 조건을 건너뛰게 된다.
     if "맹견" in text:
         is_exclude = any(w in text for w in DANGEROUS_BREED_EXCLUDE_WORDS)
         is_equipment = any(w in text for w in DANGEROUS_BREED_EQUIPMENT_WORDS)
@@ -95,8 +97,15 @@ def _judge_core(text, pet_weight, is_dangerous_breed):
             return "✅ 동반 가능 (맹견 제외 조건, 일반 견종은 무관): " + text
         return "⚠️ 맹견 해당 여부 확인 필요: " + text
 
-    # 4. 무게 제한: "10kg 이하" / "10kg미만" 같은 패턴 (이하=포함, 미만=미포함)
-    match = re.search(r"(\d+)\s*kg\s*(이하|미만)?", text, re.IGNORECASE)
+    # 5. "불가"만 있고 "가능"이 없으면 그냥 전면 불가 — 위에서 특수 카테고리를
+    # 전부 걸러낸 뒤에 도는 일반 규칙이라 더 이상 특정 대상 한정 "불가"를 삼키지 않는다.
+    if "불가" in text and "가능" not in text:
+        return "❌ 동반 불가"
+
+    # 6. 무게 제한: "10kg 이하" / "10kg미만" 같은 패턴 (이하=포함, 미만=미포함)
+    # "㎏"(U+338F, 완성형 유니코드 기호)는 "kg"와 눈으로는 구분이 안 되지만 별개 문자라
+    # 정규식에 명시적으로 포함해야 한다 (전국 스캔 실제 사례: 남이섬 "20㎏ 미만 동반 가능").
+    match = re.search(r"(\d+)\s*(?:kg|㎏)\s*(이하|미만)?", text, re.IGNORECASE)
     if match:
         limit = float(match.group(1))
         strict = match.group(2) == "미만"
@@ -133,11 +142,11 @@ def _judge_core(text, pet_weight, is_dangerous_breed):
     if text.startswith("가능") or "가능(" in text:
         return "✅ 동반 가능 (" + text + ")"
 
-    # 5. 긍정 신호 — 조건 없이 다 받아준다는 문장
+    # 7. 긍정 신호 — 조건 없이 다 받아준다는 문장
     if any(sig in text for sig in POSITIVE_SIGNALS):
         return "✅ 동반 가능"
 
-    # 6. 그 외엔 원문을 보여주고 유보
+    # 8. 그 외엔 원문을 보여주고 유보
     return "⚠️ 조건 확인 필요: " + text
 
 def main():
