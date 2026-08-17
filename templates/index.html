@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="card">
+    {% if error %}
+      <div class="error-box">{{ error }}</div>
+    {% endif %}
+    <form action="/result" method="post">
+      <label for="region">지역</label>
+      <select name="region" id="region">
+        <option value="">전국</option>
+        {% for r in regions %}
+          <option value="{{ r }}" {% if region == r %}selected{% endif %}>{{ r }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="category">종류</label>
+      <select name="category" id="category">
+        <option value="">전체</option>
+        {% for c in categories %}
+          <option value="{{ c }}" {% if category == c %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="pet_weight">반려동물 무게 (kg)</label>
+      <input type="number" name="pet_weight" id="pet_weight" step="0.1" min="0.1" placeholder="예: 4.5" required>
+
+      <label>맹견(도사견·핏불 등)에 해당하나요?</label>
+      <div class="radio-row">
+        <label><input type="radio" name="is_dangerous_breed" value="아니오" checked><span>아니오</span></label>
+        <label><input type="radio" name="is_dangerous_breed" value="예"><span>예</span></label>
+        <label><input type="radio" name="is_dangerous_breed" value="모름"><span>모름</span></label>
+      </div>
+      <p class="hint">맹견 관련 조건이 있는 장소는 이 답변에 따라 동반 가능 여부가 확정됩니다.</p>
+
+      <button type="submit" class="submit">동반 가능한 곳 찾기</button>
+    </form>
+  </div>
+{% endblock %}
