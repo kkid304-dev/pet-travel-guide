@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+  <p><a href="/" style="color:var(--accent); font-size:13.5px; text-decoration:none;">&larr; 다시 검색</a></p>
+
+  <div class="card" style="margin-bottom:20px;">
+    <div style="font-size:13.5px; color:var(--ink-muted);">
+      {{ region or "전국" }} · {{ category or "전체" }} · {{ pet_weight }}kg · 맹견 여부: {{ breed_answer }}
+    </div>
+    {% if total_count %}
+      <div style="font-size:13px; color:var(--ink-muted); margin-top:4px;">전체 {{ total_count }}곳 중 {{ places|length }}곳 표시</div>
+    {% endif %}
+  </div>
+
+  {% if error %}
+    <div class="error-box">조회 중 문제가 발생했습니다: {{ error }}</div>
+  {% elif not places %}
+    <div class="card">조건에 맞는 장소를 찾지 못했습니다. 지역·종류를 바꿔서 다시 시도해보세요.</div>
+  {% else %}
+    {% for p in places %}
+      {% if p.verdict.startswith('✅') %}
+        {% set tone = 'ok' %}
+      {% elif p.verdict.startswith('❌') %}
+        {% set tone = 'bad' %}
+      {% else %}
+        {% set tone = 'warn' %}
+      {% endif %}
+      <div class="card" style="margin-bottom:12px; border-left:4px solid var(--{{ tone }});">
+        <div style="display:flex; justify-content:space-between; gap:12px; align-items:baseline;">
+          <div>
+            <span style="font-size:11.5px; color:var(--ink-muted); font-weight:600;">[{{ p.category }}]</span>
+            <strong style="font-size:15.5px;">{{ p.title }}</strong>
+          </div>
+        </div>
+        <div style="font-size:12.5px; color:var(--ink-muted); margin-top:2px;">{{ p.addr }}</div>
+        <div style="margin-top:10px; padding:9px 12px; background:var(--{{ tone }}-soft); color:var(--{{ tone }}); border-radius:6px; font-size:13.5px; font-weight:600;">
+          {{ p.verdict }}
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endblock %}
