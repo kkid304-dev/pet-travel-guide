@@ -13,7 +13,7 @@
 ## 실행 방법
 
 ```bash
-# Python 3.14 기준 (3.11 이상이면 대부분 호환)
+# Python 3.11 / 3.14에서 설치·구동 확인
 pip install -r requirements.txt
 cp .env.example .env   # KTO_API_KEY에 공공데이터포털 인증키 입력
 flask --app app run
@@ -21,9 +21,11 @@ flask --app app run
 
 `http://127.0.0.1:5000` 접속 → 지역·종류·반려동물 무게·맹견 여부 입력 → 동반 가능 여부 확인.
 
-judge 회귀 테스트 실행:
+judge 회귀 테스트 실행 (정상이면 아래처럼 전부 통과해야 함):
 ```bash
-python test_judge.py
+$ python test_judge.py
+...
+34/34 통과
 ```
 
 ## 주요 기능
@@ -83,4 +85,13 @@ python test_judge.py
 
 ## 기술 스택
 
-Python 3.14, Flask, 한국관광공사 KorPetTourService2 OpenAPI (공공데이터포털)
+Python, Flask, 한국관광공사 KorPetTourService2 OpenAPI (공공데이터포털)
+
+## 데이터 출처
+
+본 서비스는 한국관광공사의 반려동물 동반여행 정보(KorPetTourService2)를
+[공공데이터포털](https://www.data.go.kr)을 통해 제공받아 사용합니다.
+
+## 라이선스
+
+[MIT License](LICENSE)
