@@ -5,6 +5,9 @@
       <div class="error-box">{{ error }}</div>
     {% endif %}
     <form action="/result" method="post" id="search-form">
+      <label for="keyword">장소명 검색 (선택)</label>
+      <input type="text" name="keyword" id="keyword" placeholder="예: 가야산, 카페" maxlength="50">
+
       <label for="region">지역</label>
       <select name="region" id="region">
         <option value="">전국</option>
