@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 
 from pet_service import search_places, get_sigungu_codes, warm_sigungu_cache, REGION_CODES, CATEGORY_CODES
+from korea_map import korea_map_regions, map_view_box
 
 app = Flask(__name__)
 
@@ -9,15 +10,19 @@ BREED_ANSWERS = {"예": True, "아니오": False, "모름": None}
 warm_sigungu_cache()
 
 
+def _index_context():
+    return {
+        "regions": list(REGION_CODES.keys()),
+        "categories": list(CATEGORY_CODES.keys()),
+        "sigungu_by_region": {region: get_sigungu_codes(region) for region in REGION_CODES},
+        "map_regions": korea_map_regions(),
+        "map_view_box": map_view_box(),
+    }
+
+
 @app.route("/")
 def index():
-    sigungu_by_region = {region: get_sigungu_codes(region) for region in REGION_CODES}
-    return render_template(
-        "index.html",
-        regions=list(REGION_CODES.keys()),
-        categories=list(CATEGORY_CODES.keys()),
-        sigungu_by_region=sigungu_by_region,
-    )
+    return render_template("index.html", **_index_context())
 
 
 @app.route("/result", methods=["POST"])
@@ -36,9 +41,7 @@ def result():
     except ValueError:
         return render_template(
             "index.html",
-            regions=list(REGION_CODES.keys()),
-            categories=list(CATEGORY_CODES.keys()),
-            sigungu_by_region={region: get_sigungu_codes(region) for region in REGION_CODES},
+            **_index_context(),
             error="반려동물 무게는 0보다 큰 숫자로 입력해주세요.",
             region=region, category=category,
         ), 400

@@ -19,6 +19,27 @@
       line-height: 1.6; word-break: keep-all;
     }
     .wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 80px; }
+    .wrap--wide { max-width: 960px; }
+    .home-layout { display: flex; gap: 24px; align-items: flex-start; }
+    .map-panel { flex: 0 0 45%; }
+    .form-panel { flex: 1 1 55%; min-width: 0; }
+    .map-hint { font-size: 12.5px; color: var(--ink-muted); margin: 0 0 10px; text-align: center; }
+    .kr-map { width: 100%; height: auto; display: block; }
+    .kr-map path {
+      fill: #E4E1D6; stroke: var(--bg); stroke-width: 3; cursor: pointer;
+      transition: fill .15s;
+    }
+    .kr-map g:not(.selected):hover path { fill: var(--accent-soft); }
+    .kr-map g.selected path { fill: var(--accent); }
+    .kr-map text {
+      font-size: 11px; fill: var(--ink-muted); text-anchor: middle; dominant-baseline: middle;
+      pointer-events: none;
+    }
+    .kr-map g.selected text { fill: #fff; font-weight: 700; }
+    @media (max-width: 760px) {
+      .map-panel { display: none; }
+      .home-layout { display: block; }
+    }
     header.top {
       position: relative; overflow: hidden;
       margin-bottom: 28px; padding: 36px 24px; text-align: center; border-radius: 14px;
@@ -79,7 +100,7 @@
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="wrap {% block wrap_class %}{% endblock %}">
     <header class="top">
       <div class="hero-decor" aria-hidden="true">
         <svg class="hero-paw hero-paw--1" viewBox="0 0 24 24" fill="currentColor"><ellipse cx="12" cy="16.5" rx="5" ry="4"/><ellipse cx="5.3" cy="9.2" rx="1.8" ry="2.4"/><ellipse cx="9.6" cy="5.6" rx="1.8" ry="2.4"/><ellipse cx="14.4" cy="5.6" rx="1.8" ry="2.4"/><ellipse cx="18.7" cy="9.2" rx="1.8" ry="2.4"/></svg>
