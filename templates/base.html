@@ -21,12 +21,12 @@
     .wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 80px; }
     .wrap--wide { max-width: 960px; }
     .home-layout { display: flex; gap: 24px; align-items: flex-start; }
-    .map-panel { flex: 0 0 45%; }
+    .map-panel { flex: 0 0 45%; position: relative; }
     .form-panel { flex: 1 1 55%; min-width: 0; }
     .map-hint { font-size: 12.5px; color: var(--ink-muted); margin: 0 0 10px; text-align: center; }
     .kr-map { width: 100%; height: auto; display: block; }
     .kr-map path {
-      fill: #E4E1D6; stroke: var(--bg); stroke-width: 3; cursor: pointer;
+      fill: #E4E1D6; stroke: var(--bg); stroke-width: 1.4; cursor: pointer;
       transition: fill .15s;
     }
     .kr-map g:not(.selected):hover path { fill: var(--accent-soft); }
@@ -36,6 +36,13 @@
       pointer-events: none;
     }
     .kr-map g.selected text { fill: #fff; font-weight: 700; }
+    .map-tooltip {
+      position: absolute; z-index: 5; pointer-events: none;
+      background: var(--ink); color: #fff; font-size: 12px; font-weight: 600;
+      padding: 4px 9px; border-radius: 5px; transform: translate(-50%, -130%);
+      white-space: nowrap; opacity: 0; transition: opacity .1s;
+    }
+    .map-tooltip.visible { opacity: 1; }
     @media (max-width: 760px) {
       .map-panel { display: none; }
       .home-layout { display: block; }

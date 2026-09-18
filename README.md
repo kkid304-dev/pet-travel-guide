@@ -92,6 +92,14 @@ Python, Flask, 한국관광공사 KorPetTourService2 OpenAPI (공공데이터포
 본 서비스는 한국관광공사의 반려동물 동반여행 정보(KorPetTourService2)를
 [공공데이터포털](https://www.data.go.kr)을 통해 제공받아 사용합니다.
 
+첫 화면 지역 선택 지도(17개 시도 경계)는 아래 출처 체인을 거친 데이터를 가공해 사용합니다:
+
+- 원본: 통계청 SGIS(Statistics Korea) 행정동 경계 — [공공누리 제1유형(출처표시)](https://www.kogl.or.kr/info/licenseType1.do)
+- 1차 가공: [vuski/admdongkor](https://github.com/vuski/admdongkor) (CC BY 4.0)
+- 2차 가공: [DevMinGeonPark/mapcn-kr](https://github.com/DevMinGeonPark/mapcn-kr) (MIT) — 시도/시군구 단위로 병합
+- 3차 가공(본 프로젝트): 광주·전남 통합 폴리곤을 시군구 데이터 기준으로 재분리, 좌표 단순화 및
+  지도 크기에서 보이지 않는 작은 부속 섬 제거 (`korea_map.py` 상단 주석 참고)
+
 ## 라이선스
 
 [MIT License](LICENSE)
