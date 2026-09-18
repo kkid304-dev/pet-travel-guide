@@ -13,19 +13,31 @@
     }
     * { box-sizing: border-box; }
     body {
-      margin: 0; background: var(--bg); color: var(--ink);
+      margin: 0; background-color: var(--bg); color: var(--ink);
+      background-image: repeating-linear-gradient(135deg, rgba(47,93,80,.03) 0, rgba(47,93,80,.03) 1px, transparent 1px, transparent 34px);
       font-family: "Pretendard Variable", "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, system-ui, sans-serif;
       line-height: 1.6; word-break: keep-all;
     }
     .wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 80px; }
     header.top {
+      position: relative; overflow: hidden;
       margin-bottom: 28px; padding: 36px 24px; text-align: center; border-radius: 14px;
-      background: linear-gradient(135deg, var(--accent), #24564A);
+      background:
+        radial-gradient(120% 120% at 15% 0%, rgba(255,255,255,.10), transparent 55%),
+        linear-gradient(135deg, var(--accent), #24564A);
     }
-    header.top a { text-decoration: none; color: #fff; }
+    .hero-decor { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+    .hero-paw { position: absolute; color: #fff; }
+    .hero-paw--1 { width: 120px; top: -26px; left: -24px; opacity: .09; transform: rotate(-18deg); }
+    .hero-paw--2 { width: 90px; bottom: -28px; right: 8%; opacity: .07; transform: rotate(16deg); }
+    .hero-paw--3 { width: 56px; top: 55%; right: -8px; opacity: .06; transform: translateY(-50%) rotate(-10deg); }
+    header.top a, header.top p { position: relative; z-index: 1; text-decoration: none; color: #fff; }
     header.top h1 { font-size: 28px; margin: 0 0 8px; color: #fff; }
     header.top p { margin: 0; color: rgba(255,255,255,.88); font-size: 14.5px; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px;
+      box-shadow: 0 10px 26px -14px rgba(36,66,58,.32);
+    }
     .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 28px 0; }
     .feature-card {
       background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
@@ -69,6 +81,11 @@
 <body>
   <div class="wrap">
     <header class="top">
+      <div class="hero-decor" aria-hidden="true">
+        <svg class="hero-paw hero-paw--1" viewBox="0 0 24 24" fill="currentColor"><ellipse cx="12" cy="16.5" rx="5" ry="4"/><ellipse cx="5.3" cy="9.2" rx="1.8" ry="2.4"/><ellipse cx="9.6" cy="5.6" rx="1.8" ry="2.4"/><ellipse cx="14.4" cy="5.6" rx="1.8" ry="2.4"/><ellipse cx="18.7" cy="9.2" rx="1.8" ry="2.4"/></svg>
+        <svg class="hero-paw hero-paw--2" viewBox="0 0 24 24" fill="currentColor"><ellipse cx="12" cy="16.5" rx="5" ry="4"/><ellipse cx="5.3" cy="9.2" rx="1.8" ry="2.4"/><ellipse cx="9.6" cy="5.6" rx="1.8" ry="2.4"/><ellipse cx="14.4" cy="5.6" rx="1.8" ry="2.4"/><ellipse cx="18.7" cy="9.2" rx="1.8" ry="2.4"/></svg>
+        <svg class="hero-paw hero-paw--3" viewBox="0 0 24 24" fill="currentColor"><ellipse cx="12" cy="16.5" rx="5" ry="4"/><ellipse cx="5.3" cy="9.2" rx="1.8" ry="2.4"/><ellipse cx="9.6" cy="5.6" rx="1.8" ry="2.4"/><ellipse cx="14.4" cy="5.6" rx="1.8" ry="2.4"/><ellipse cx="18.7" cy="9.2" rx="1.8" ry="2.4"/></svg>
+      </div>
       <a href="/"><h1>🐾 멍냥로드</h1></a>
       <p>모호한 반려동물 동반 조건을 대신 해석해드립니다</p>
     </header>
