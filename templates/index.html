@@ -8,10 +8,13 @@
         {% for r in map_regions %}
           <g data-region="{{ r.name }}">
             <path d="{{ r.d }}"></path>
-            <text x="{{ r.cx }}" y="{{ r.cy }}">{{ r.name }}</text>
+            {% if r.show_label %}
+              <text x="{{ r.cx }}" y="{{ r.cy }}">{{ r.name }}</text>
+            {% endif %}
           </g>
         {% endfor %}
       </svg>
+      <div class="map-tooltip" id="map-tooltip"></div>
     </div>
     <div class="form-panel">
       <div class="card">
@@ -98,6 +101,8 @@
     }
 
     var mapSvg = document.querySelector(".kr-map");
+    var mapPanel = document.querySelector(".map-panel");
+    var mapTooltip = document.getElementById("map-tooltip");
     function syncMapSelection(region) {
       if (!mapSvg) { return; }
       mapSvg.querySelectorAll("g[data-region]").forEach(function (g) {
@@ -109,6 +114,18 @@
         g.addEventListener("click", function () {
           regionSelect.value = g.getAttribute("data-region");
           regionSelect.dispatchEvent(new Event("change"));
+        });
+        g.addEventListener("mouseenter", function () {
+          mapTooltip.textContent = g.getAttribute("data-region");
+          mapTooltip.classList.add("visible");
+        });
+        g.addEventListener("mousemove", function (e) {
+          var rect = mapPanel.getBoundingClientRect();
+          mapTooltip.style.left = (e.clientX - rect.left) + "px";
+          mapTooltip.style.top = (e.clientY - rect.top) + "px";
+        });
+        g.addEventListener("mouseleave", function () {
+          mapTooltip.classList.remove("visible");
         });
       });
     }
