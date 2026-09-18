@@ -21,7 +21,7 @@
     <div id="places-list">{% include "_place_cards.html" %}</div>
     {% if places|length < total_count %}
       <button type="button" id="more-btn" class="submit"
-        data-region="{{ region }}" data-category="{{ category }}"
+        data-region="{{ region }}" data-category="{{ category }}" data-sigungu="{{ sigungu_code }}"
         data-pet-weight="{{ pet_weight }}" data-breed="{{ breed_answer }}"
         data-page="2" data-total="{{ total_count }}" data-shown="{{ places|length }}"
         style="margin-top:8px;">더 보기</button>
@@ -40,6 +40,7 @@
         var params = new URLSearchParams({
           region: btn.dataset.region,
           category: btn.dataset.category,
+          sigungu: btn.dataset.sigungu,
           pet_weight: btn.dataset.petWeight,
           breed_answer: btn.dataset.breed,
           page: page
