@@ -46,5 +46,27 @@ def result():
     )
 
 
+@app.route("/more")
+def more():
+    region = request.args.get("region", "")
+    category = request.args.get("category", "")
+    breed_answer = request.args.get("breed_answer", "모름")
+
+    try:
+        pet_weight = float(request.args.get("pet_weight", ""))
+        page = int(request.args.get("page", ""))
+        if pet_weight <= 0 or page < 1:
+            raise ValueError
+    except ValueError:
+        return {"html": "", "count": 0}, 400
+
+    is_dangerous_breed = BREED_ANSWERS.get(breed_answer)
+    places, total_count, err = search_places(region, category, pet_weight, is_dangerous_breed, page=page)
+    if err:
+        return {"html": "", "count": 0}, 502
+
+    return {"html": render_template("_place_cards.html", places=places), "count": len(places)}
+
+
 if __name__ == "__main__":
     app.run(debug=True)

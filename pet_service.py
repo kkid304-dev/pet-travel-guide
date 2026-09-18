@@ -41,18 +41,20 @@ def _fetch_detail_condition(content_id):
     return condition, None
 
 
-def search_places(region, category, pet_weight, is_dangerous_breed, limit=12):
+def search_places(region, category, pet_weight, is_dangerous_breed, limit=12, page=1):
     """지역·카테고리로 목록을 조회하고, 상세 조건을 병렬로 가져와 judge() 판정까지 붙여 반환.
 
     상세 조회는 장소당 API 호출 1건이라 numOfRows개를 순차로 돌리면 왕복 지연이 그대로
     누적된다 (12곳이면 12번 왕복). ThreadPoolExecutor로 동시에 쏴서 체감 대기시간을
     가장 느린 1건 수준으로 줄인다.
 
+    page는 "더보기"에서 다음 페이지를 이어 받아오는 데 쓴다 (이미 받은 페이지는 재호출하지 않음).
+
     반환: (결과 리스트, 전체 개수, 에러메시지 또는 None)
     """
     params = {
         "serviceKey": KEY, "MobileOS": "ETC", "MobileApp": "PetTest",
-        "_type": "json", "numOfRows": limit, "pageNo": 1, "arrange": "O",
+        "_type": "json", "numOfRows": limit, "pageNo": page, "arrange": "O",
     }
     if region in REGION_CODES:
         params["lDongRegnCd"] = REGION_CODES[region]

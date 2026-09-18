@@ -4,7 +4,7 @@
     {% if error %}
       <div class="error-box">{{ error }}</div>
     {% endif %}
-    <form action="/result" method="post">
+    <form action="/result" method="post" id="search-form">
       <label for="region">지역</label>
       <select name="region" id="region">
         <option value="">전국</option>
@@ -32,7 +32,14 @@
       </div>
       <p class="hint">맹견 관련 조건이 있는 장소는 이 답변에 따라 동반 가능 여부가 확정됩니다.</p>
 
-      <button type="submit" class="submit">동반 가능한 곳 찾기</button>
+      <button type="submit" class="submit" id="search-btn">동반 가능한 곳 찾기</button>
     </form>
   </div>
+  <script>
+    document.getElementById("search-form").addEventListener("submit", function () {
+      var btn = document.getElementById("search-btn");
+      btn.disabled = true;
+      btn.textContent = "조회 중...";
+    });
+  </script>
 {% endblock %}
