@@ -4,7 +4,7 @@
 
   <div class="card" style="margin-bottom:20px;">
     <div style="font-size:13.5px; color:var(--ink-muted);">
-      {{ region or "전국" }} · {{ category or "전체" }} · {{ pet_weight }}kg · 맹견 여부: {{ breed_answer }}
+      {% if keyword %}"{{ keyword }}" · {% endif %}{{ region or "전국" }} · {{ category or "전체" }} · {{ pet_weight }}kg · 맹견 여부: {{ breed_answer }}
     </div>
     {% if total_count %}
       <div id="count-info" style="font-size:13px; color:var(--ink-muted); margin-top:4px;">
@@ -22,7 +22,7 @@
     {% if places|length < total_count %}
       <button type="button" id="more-btn" class="submit"
         data-region="{{ region }}" data-category="{{ category }}" data-sigungu="{{ sigungu_code }}"
-        data-pet-weight="{{ pet_weight }}" data-breed="{{ breed_answer }}"
+        data-keyword="{{ keyword }}" data-pet-weight="{{ pet_weight }}" data-breed="{{ breed_answer }}"
         data-page="2" data-total="{{ total_count }}" data-shown="{{ places|length }}"
         style="margin-top:8px;">더 보기</button>
     {% endif %}
@@ -41,6 +41,7 @@
           region: btn.dataset.region,
           category: btn.dataset.category,
           sigungu: btn.dataset.sigungu,
+          keyword: btn.dataset.keyword,
           pet_weight: btn.dataset.petWeight,
           breed_answer: btn.dataset.breed,
           page: page

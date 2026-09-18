@@ -5,6 +5,9 @@
       <div class="error-box">{{ error }}</div>
     {% endif %}
     <form action="/result" method="post" id="search-form">
+      <label for="keyword">장소명 검색 (선택)</label>
+      <input type="text" name="keyword" id="keyword" placeholder="예: 가야산, 카페" maxlength="50">
+
       <label for="region">지역</label>
       <select name="region" id="region">
         <option value="">전국</option>
@@ -40,6 +43,26 @@
       <button type="submit" class="submit" id="search-btn">동반 가능한 곳 찾기</button>
     </form>
   </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v4h4"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
+      <h3>조건 원문 그대로 확인</h3>
+      <p>동반 조건 원문과 판정 근거를 함께 보여드립니다.</p>
+    </div>
+    <div class="feature-card">
+      <svg viewBox="0 0 24 24" fill="currentColor"><ellipse cx="12" cy="16.5" rx="5" ry="4"/><ellipse cx="5.3" cy="9.2" rx="1.8" ry="2.4"/><ellipse cx="9.6" cy="5.6" rx="1.8" ry="2.4"/><ellipse cx="14.4" cy="5.6" rx="1.8" ry="2.4"/><ellipse cx="18.7" cy="9.2" rx="1.8" ry="2.4"/></svg>
+      <h3>맹견 여부까지 반영</h3>
+      <p>맹견 관련 조건이 있는 곳은 답변에 따라 가능 여부가 달라집니다.</p>
+    </div>
+    <div class="feature-card">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20L12 3z"/><line x1="12" y1="9" x2="12" y2="14"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <h3>판정할 수 없으면 정직하게 유보</h3>
+      <p>애매한 조건은 임의로 확정하지 않고 ⚠️로 남겨둡니다.</p>
+    </div>
+  </div>
+  <p class="data-scope">한국관광공사 반려동물 동반여행 정보를 실시간으로 조회합니다</p>
+
   <script>
     var SIGUNGU_BY_REGION = {{ sigungu_by_region | tojson }};
 
