@@ -4,13 +4,18 @@
     {% if error %}
       <div class="error-box">{{ error }}</div>
     {% endif %}
-    <form action="/result" method="post">
+    <form action="/result" method="post" id="search-form">
       <label for="region">지역</label>
       <select name="region" id="region">
         <option value="">전국</option>
         {% for r in regions %}
           <option value="{{ r }}" {% if region == r %}selected{% endif %}>{{ r }}</option>
         {% endfor %}
+      </select>
+
+      <label for="sigungu">시군구 (선택)</label>
+      <select name="sigungu" id="sigungu">
+        <option value="">전체</option>
       </select>
 
       <label for="category">종류</label>
@@ -32,7 +37,36 @@
       </div>
       <p class="hint">맹견 관련 조건이 있는 장소는 이 답변에 따라 동반 가능 여부가 확정됩니다.</p>
 
-      <button type="submit" class="submit">동반 가능한 곳 찾기</button>
+      <button type="submit" class="submit" id="search-btn">동반 가능한 곳 찾기</button>
     </form>
   </div>
+  <script>
+    var SIGUNGU_BY_REGION = {{ sigungu_by_region | tojson }};
+
+    var regionSelect = document.getElementById("region");
+    var sigunguSelect = document.getElementById("sigungu");
+
+    function populateSigungu(region) {
+      sigunguSelect.innerHTML = '<option value="">전체</option>';
+      var codes = SIGUNGU_BY_REGION[region];
+      if (!codes) { return; }
+      Object.keys(codes).sort().forEach(function (name) {
+        var opt = document.createElement("option");
+        opt.value = codes[name];
+        opt.textContent = name;
+        sigunguSelect.appendChild(opt);
+      });
+    }
+
+    regionSelect.addEventListener("change", function () {
+      populateSigungu(regionSelect.value);
+    });
+    populateSigungu(regionSelect.value);
+
+    document.getElementById("search-form").addEventListener("submit", function () {
+      var btn = document.getElementById("search-btn");
+      btn.disabled = true;
+      btn.textContent = "조회 중...";
+    });
+  </script>
 {% endblock %}

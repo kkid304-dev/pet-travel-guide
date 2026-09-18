@@ -7,7 +7,9 @@
       {{ region or "전국" }} · {{ category or "전체" }} · {{ pet_weight }}kg · 맹견 여부: {{ breed_answer }}
     </div>
     {% if total_count %}
-      <div style="font-size:13px; color:var(--ink-muted); margin-top:4px;">전체 {{ total_count }}곳 중 {{ places|length }}곳 표시</div>
+      <div id="count-info" style="font-size:13px; color:var(--ink-muted); margin-top:4px;">
+        전체 {{ total_count }}곳 중 <span id="shown-count">{{ places|length }}</span>곳 표시<span id="more-suffix">{% if places|length < total_count %} · 더 보기로 추가 조회{% endif %}</span>
+      </div>
     {% endif %}
   </div>
 
@@ -16,26 +18,63 @@
   {% elif not places %}
     <div class="card">조건에 맞는 장소를 찾지 못했습니다. 지역·종류를 바꿔서 다시 시도해보세요.</div>
   {% else %}
-    {% for p in places %}
-      {% if p.verdict.startswith('✅') %}
-        {% set tone = 'ok' %}
-      {% elif p.verdict.startswith('❌') %}
-        {% set tone = 'bad' %}
-      {% else %}
-        {% set tone = 'warn' %}
-      {% endif %}
-      <div class="card" style="margin-bottom:12px; border-left:4px solid var(--{{ tone }});">
-        <div style="display:flex; justify-content:space-between; gap:12px; align-items:baseline;">
-          <div>
-            <span style="font-size:11.5px; color:var(--ink-muted); font-weight:600;">[{{ p.category }}]</span>
-            <strong style="font-size:15.5px;">{{ p.title }}</strong>
-          </div>
-        </div>
-        <div style="font-size:12.5px; color:var(--ink-muted); margin-top:2px;">{{ p.addr }}</div>
-        <div style="margin-top:10px; padding:9px 12px; background:var(--{{ tone }}-soft); color:var(--{{ tone }}); border-radius:6px; font-size:13.5px; font-weight:600;">
-          {{ p.verdict }}
-        </div>
-      </div>
-    {% endfor %}
+    <div id="places-list">{% include "_place_cards.html" %}</div>
+    {% if places|length < total_count %}
+      <button type="button" id="more-btn" class="submit"
+        data-region="{{ region }}" data-category="{{ category }}" data-sigungu="{{ sigungu_code }}"
+        data-pet-weight="{{ pet_weight }}" data-breed="{{ breed_answer }}"
+        data-page="2" data-total="{{ total_count }}" data-shown="{{ places|length }}"
+        style="margin-top:8px;">더 보기</button>
+    {% endif %}
   {% endif %}
+
+  <script>
+    (function () {
+      var btn = document.getElementById("more-btn");
+      if (!btn) return;
+
+      btn.addEventListener("click", function () {
+        var page = parseInt(btn.dataset.page, 10);
+        var shown = parseInt(btn.dataset.shown, 10);
+        var total = parseInt(btn.dataset.total, 10);
+        var params = new URLSearchParams({
+          region: btn.dataset.region,
+          category: btn.dataset.category,
+          sigungu: btn.dataset.sigungu,
+          pet_weight: btn.dataset.petWeight,
+          breed_answer: btn.dataset.breed,
+          page: page
+        });
+
+        btn.disabled = true;
+        btn.textContent = "조회 중...";
+
+        fetch("/more?" + params.toString())
+          .then(function (res) {
+            if (!res.ok) { throw new Error("요청 실패"); }
+            return res.json();
+          })
+          .then(function (data) {
+            document.getElementById("places-list").insertAdjacentHTML("beforeend", data.html);
+            shown += data.count;
+            document.getElementById("shown-count").textContent = shown;
+            btn.dataset.shown = shown;
+            btn.dataset.page = page + 1;
+
+            if (data.count === 0 || shown >= total) {
+              var suffix = document.getElementById("more-suffix");
+              if (suffix) { suffix.remove(); }
+              btn.remove();
+            } else {
+              btn.disabled = false;
+              btn.textContent = "더 보기";
+            }
+          })
+          .catch(function () {
+            btn.disabled = false;
+            btn.textContent = "다시 시도";
+          });
+      });
+    })();
+  </script>
 {% endblock %}
