@@ -15,14 +15,29 @@
     body {
       margin: 0; background: var(--bg); color: var(--ink);
       font-family: "Pretendard Variable", "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, system-ui, sans-serif;
-      line-height: 1.6;
+      line-height: 1.6; word-break: keep-all;
     }
     .wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 80px; }
-    header.top { margin-bottom: 28px; }
-    header.top a { text-decoration: none; color: inherit; }
-    header.top h1 { font-size: 22px; margin: 0 0 4px; }
-    header.top p { margin: 0; color: var(--ink-muted); font-size: 13.5px; }
+    header.top {
+      margin-bottom: 28px; padding: 36px 24px; text-align: center; border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), #24564A);
+    }
+    header.top a { text-decoration: none; color: #fff; }
+    header.top h1 { font-size: 28px; margin: 0 0 8px; color: #fff; }
+    header.top p { margin: 0; color: rgba(255,255,255,.88); font-size: 14.5px; }
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 28px 0; }
+    .feature-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 18px 16px; text-align: center;
+    }
+    .feature-card svg { width: 26px; height: 26px; color: var(--accent); margin-bottom: 10px; }
+    .feature-card h3 { font-size: 14px; margin: 0 0 6px; }
+    .feature-card p { font-size: 12.5px; color: var(--ink-muted); margin: 0; line-height: 1.5; }
+    .data-scope { text-align: center; font-size: 12.5px; color: var(--ink-muted); margin: 8px 0 0; }
+    @media (max-width: 620px) {
+      .feature-grid { grid-template-columns: 1fr; }
+    }
     label { display: block; font-weight: 600; font-size: 13.5px; margin: 18px 0 6px; }
     label:first-of-type { margin-top: 0; }
     select, input[type="number"], input[type="text"] {
