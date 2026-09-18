@@ -1,47 +1,63 @@
 {% extends "base.html" %}
+{% block wrap_class %}wrap--wide{% endblock %}
 {% block content %}
-  <div class="card">
-    {% if error %}
-      <div class="error-box">{{ error }}</div>
-    {% endif %}
-    <form action="/result" method="post" id="search-form">
-      <label for="keyword">장소명 검색 (선택)</label>
-      <input type="text" name="keyword" id="keyword" placeholder="예: 가야산, 카페" maxlength="50">
-
-      <label for="region">지역</label>
-      <select name="region" id="region">
-        <option value="">전국</option>
-        {% for r in regions %}
-          <option value="{{ r }}" {% if region == r %}selected{% endif %}>{{ r }}</option>
+  <div class="home-layout">
+    <div class="map-panel">
+      <p class="map-hint">지도에서 지역을 선택하거나 아래에서 직접 고르세요</p>
+      <svg class="kr-map" viewBox="{{ map_view_box }}" aria-hidden="true">
+        {% for r in map_regions %}
+          <g data-region="{{ r.name }}">
+            <path d="{{ r.d }}"></path>
+            <text x="{{ r.cx }}" y="{{ r.cy }}">{{ r.name }}</text>
+          </g>
         {% endfor %}
-      </select>
+      </svg>
+    </div>
+    <div class="form-panel">
+      <div class="card">
+        {% if error %}
+          <div class="error-box">{{ error }}</div>
+        {% endif %}
+        <form action="/result" method="post" id="search-form">
+          <label for="keyword">장소명 검색 (선택)</label>
+          <input type="text" name="keyword" id="keyword" placeholder="예: 가야산, 카페" maxlength="50">
 
-      <label for="sigungu">시군구 (선택)</label>
-      <select name="sigungu" id="sigungu">
-        <option value="">전체</option>
-      </select>
+          <label for="region">지역</label>
+          <select name="region" id="region">
+            <option value="">전국</option>
+            {% for r in regions %}
+              <option value="{{ r }}" {% if region == r %}selected{% endif %}>{{ r }}</option>
+            {% endfor %}
+          </select>
 
-      <label for="category">종류</label>
-      <select name="category" id="category">
-        <option value="">전체</option>
-        {% for c in categories %}
-          <option value="{{ c }}" {% if category == c %}selected{% endif %}>{{ c }}</option>
-        {% endfor %}
-      </select>
+          <label for="sigungu">시군구 (선택)</label>
+          <select name="sigungu" id="sigungu">
+            <option value="">전체</option>
+          </select>
 
-      <label for="pet_weight">반려동물 무게 (kg)</label>
-      <input type="number" name="pet_weight" id="pet_weight" step="0.1" min="0.1" placeholder="예: 4.5" required>
+          <label for="category">종류</label>
+          <select name="category" id="category">
+            <option value="">전체</option>
+            {% for c in categories %}
+              <option value="{{ c }}" {% if category == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
 
-      <label>맹견(도사견·핏불 등)에 해당하나요?</label>
-      <div class="radio-row">
-        <label><input type="radio" name="is_dangerous_breed" value="아니오" checked><span>아니오</span></label>
-        <label><input type="radio" name="is_dangerous_breed" value="예"><span>예</span></label>
-        <label><input type="radio" name="is_dangerous_breed" value="모름"><span>모름</span></label>
+          <label for="pet_weight">반려동물 무게 (kg)</label>
+          <input type="number" name="pet_weight" id="pet_weight" step="0.1" min="0.1" placeholder="예: 4.5" required>
+
+          <label>맹견(도사견·핏불 등)에 해당하나요?</label>
+          <div class="radio-row">
+            <label><input type="radio" name="is_dangerous_breed" value="아니오" checked><span>아니오</span></label>
+            <label><input type="radio" name="is_dangerous_breed" value="예"><span>예</span></label>
+            <label><input type="radio" name="is_dangerous_breed" value="모름"><span>모름</span></label>
+          </div>
+          <p class="hint">맹견 관련 조건이 있는 장소는 이 답변에 따라 동반 가능 여부가 확정됩니다.</p>
+
+          <button type="submit" class="submit" id="search-btn">동반 가능한 곳 찾기</button>
+        </form>
       </div>
-      <p class="hint">맹견 관련 조건이 있는 장소는 이 답변에 따라 동반 가능 여부가 확정됩니다.</p>
-
-      <button type="submit" class="submit" id="search-btn">동반 가능한 곳 찾기</button>
-    </form>
+    </div>
   </div>
 
   <div class="feature-grid">
@@ -81,10 +97,28 @@
       });
     }
 
+    var mapSvg = document.querySelector(".kr-map");
+    function syncMapSelection(region) {
+      if (!mapSvg) { return; }
+      mapSvg.querySelectorAll("g[data-region]").forEach(function (g) {
+        g.classList.toggle("selected", g.getAttribute("data-region") === region);
+      });
+    }
+    if (mapSvg) {
+      mapSvg.querySelectorAll("g[data-region]").forEach(function (g) {
+        g.addEventListener("click", function () {
+          regionSelect.value = g.getAttribute("data-region");
+          regionSelect.dispatchEvent(new Event("change"));
+        });
+      });
+    }
+
     regionSelect.addEventListener("change", function () {
       populateSigungu(regionSelect.value);
+      syncMapSelection(regionSelect.value);
     });
     populateSigungu(regionSelect.value);
+    syncMapSelection(regionSelect.value);
 
     document.getElementById("search-form").addEventListener("submit", function () {
       var btn = document.getElementById("search-btn");
